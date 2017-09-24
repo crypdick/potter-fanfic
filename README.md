@@ -4,6 +4,24 @@
 # 4
 Create a database called fanfiction\_<lastname>. Create a stories\_orig table with url as the primary key. 
 
+CREATE DATABASE fanfiction_duffrindecal;
+\connect fanfiction_duffrindecal
+
+CREATE TABLE storied_orig (
+  seq_id  serial primary key,
+  hubway_id   bigint,
+  status  character varying(10),
+  duration  integer,
+  start_date  timestamp without time zone,
+  strt_statn  integer,
+  end_date  timestamp without time zone,
+  end_statn   integer,
+  bike_nr   character varying(20),
+  subsc_type  character varying(20),
+  zip_code  character varying(6),
+  birth_date  integer,
+  gender  character varying(10));
+
 ## a
 Use \copy to load Fanfiction/stories\_orig.csv into the table. Despite what Postgres may say, the problem isn’t that url is the primary key; the problem is in the data. Explain. 
 
@@ -36,4 +54,4 @@ Add each row r to the h(r)th list.
 Traverse the list of lists. If any list contains more than one row, compare them. 
 
 ## c
-Which program runs faster? Explain.
+Which program runs faster? Explain
