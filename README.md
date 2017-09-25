@@ -75,22 +75,19 @@ With an index:
 Adding the index greatly reduces the time to join the tables because it replaces the hashing step with an index scan.
 
 
-## Fixing the data problem by two strategies
+## Fixing the data
 
-### a. Sorting the rows of stories\_orig.csv and traversing rows in sorted order.
+### Strategy 1: Sorting the rows of stories\_orig.csv and traversing rows in sorted order.
 
-### b. Using a hash
+### Strategy 2: Hashing
 
-#### i Map each row r to a number h(r) between 0 and N = 2^20-1. 
+#### Hash1: Map each row r to a number h(r) between 0 and N = 2^20-1. 
 One suggestion (among many): represent published as mmddyy and words as nnn...n, and set h(r) to mmddyynnn...n mod N.
 
-#### ii
-Create a python list of N empty lists.
+#### Hash2: Create a python list of N empty lists.
 
-#### iii
-Add each row r to the h(r)th list. 
+#### Hash3: Add each row r to the h(r)th list. 
 
-#### iv
-Traverse the list of lists. If any list contains more than one row, compare them. 
+#### Hash4: Traverse the list of lists. If any list contains more than one row, compare them. 
 
-### c. Comparison of strategies
+### Comparison of munging strategies
