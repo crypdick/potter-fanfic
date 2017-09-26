@@ -79,3 +79,11 @@ print('5B: ' + str(time_elapsed))
 
 #5C
 #Which program runs faster? Explain
+
+# 5A is faster, although I am not sure if that should be the case.
+
+# 5A has an initial sort, which is NlogN and then queries through the list to find duplicates, which is N
+
+# 5B populates a hash table O(N) and then runs queries through the table O(N)
+
+# Because of the speed limitations of pandas, this was not a reality.
