@@ -17,7 +17,7 @@ stories_a = stories_a.sort_values(by='URL')
 
 previous_url = ''
 for i in stories_a.index:
-	current_url = stories_a.loc[i, 'URL']
+	current_url = stories_a.ix[i, 'URL']
 	if current_url == previous_url:
 		stories_a.drop(i, inplace=True)
 	previous_url = current_url
@@ -26,7 +26,9 @@ for i in stories_a.index:
 
 time_elapsed = time.time() - start_time
 
-print('5A: ' + time_elapsed)
+print('5A: ' + str(time_elapsed))
+
+# 5A: 39.28861618041992
 
 #5B
 #The other program uses a hash:
@@ -55,34 +57,25 @@ for row in stories_b.iterrows():
 	hashed_index = hash_function(date, url)
 	hash_table[hashed_index].append(row[1])
 
-#for rows in stories_b.iterrows():
-	#date, url = stories_b.ix[i, ['PUBLISHED', 'URL']]
-	#hashed_index = hash_function(date, url)
-	#hash_table[hashed_index].append(stories_b.loc[i])
 
 for hash_table_index in range(len(hash_table)):
-	print(hash_table[hash_table_index])
 	if len(hash_table[hash_table_index]) > 1:
 		urls = []
-		print(type(hash_table[hash_table_index]))
 		for sublist_index in range(len(hash_table[hash_table_index])):
-			print(hash_table[hash_table_index[sublist_index]])
-			if hash_table[hash_table_index[sublist_index]]['URL'] in urls:
-				del hash_table[hash_table_index[sublist_index]]
-			else:
-				urls.append(hash_table[hash_table_index[sublist_index]]['URL'])
-	#if type(0) = type(hash_table[hashed_index]):
-	#	hash_table[hash_index] = stories_b.loc[i]
-	#if current_url == previous_url:
-#		stories_a.drop(i, inplace=True)
-#	previous_url = current_url
-
+			try:
+				if hash_table[hash_table_index][sublist_index]['URL'] in urls:
+					del hash_table[hash_table_index][sublist_index]
+				else:
+					urls.append(hash_table[hash_table_index][sublist_index]['URL'])
+			except:
+				print(sublist_index, hash_table[hash_table_index])
 
 #save file
 
 time_elapsed = time.time() - start_time
 
-print('5B: ' + time_elapsed)
+print('5B: ' + str(time_elapsed))
+# 5B: 239.42458391189575
 
 #5C
 #Which program runs faster? Explain
