@@ -93,15 +93,13 @@ Adding the stories_orig_url_idx index greatly reduces the time to join the table
 
 ### Comparison of munging strategies
 
-We expect the sort and traverse strategy to have O(N + N log N) complexity. First, the rows are sorted with quicksort, which is N log N on average. Then, we go through the list from top to bottom looking for duplicate rows, which is N operations.
+We expect the sort and traverse strategy to have O(N log N) complexity. First, the rows are sorted with quicksort, which is N log N on average. Then, we go through the list from top to bottom looking for duplicate rows, which is N operations. The N + Nlog N operations asymptotically converse to O(NlogN).
 
-We expect the hashing strategy to take O(3N). First, for every row we compute the hash and insert the data into a table, which is O(N). Then, we go through the table looking for rows with length > 1, which is O(P) (where P is the length of our hash table, in our case about 1,050,000 or ~2N). If we find such a list, we should in principle have a much smaller list to deduplicate.
+We expect the hashing strategy to be O(N). First, for every row we compute the hash and insert the data into a table, which is O(N). Then, we go through the table looking for rows with length > 1, which is O(P) (where P is the length of our hash table, in our case about 1,050,000 or ~2N). If we find such a list, we should in principle have a much smaller list to deduplicate. Thus, our algorithm should have a complexity of 3N, or simply O(N) magnitude.
 
-Thus, we expect the sort and traverse to be slightly faster than the hash function. However, the hashing function was much slower than strategy 1. 
+Thus, we expect the hash to be slightly faster than the hash function. However, the hashing function was much slower than strategy 1. The sort and traverse strategy took 15.05 seconds to deduplicate the table. In contrast, deduplicating the hash table took 460 seconds!
 
-The sort and traverse strategy took 15.05 seconds to deduplicate the table. In contrast, deduplicating the hash table took 460 seconds!
-
-There most likely culprit is the overhead from using Pandas to manage our csv data. Iterating through the dataframe is costly, since it has to generate a pd.Series object at each iteration. Then, we extract the url and date from each Series object by the column label in `date, url = row[['PUBLISHED', 'URL']]`. Later, when finding duplicate URLs, we are also searching through the pd.Series using keyword searches. 
+There most likely culprit is the overhead from using Pandas to manage our csv data. Iterating through the dataframe is costly, since it has to generate a pd.Series object at each iteration. Then, we extract the url and date from each Series object by the column label in `date, url = row[['PUBLISHED', 'URL']]`. Later, when finding duplicate URLs, we are once again searching each pd.Series using keyword searches. 
 
 In addition, we may just be getting unlucky with the entries clustering in our hash table due to hash collisions. This would cause us to have to make more comparisons.
 
