@@ -95,7 +95,7 @@ Adding the stories_orig_url_idx index greatly reduces the time to join the table
 
 We expect the sort and traverse strategy to have O(N + N log N) complexity. First, the rows are sorted with quicksort, which is N log N on average. Then, we go through the list from top to bottom looking for duplicate rows, which is N operations.
 
-We expect the hashing strategy to take O(3N). First, for every row we compute the hash and insert the data into a table, which is O(N). Then, we go through the table looking for rows with length > 1, which is O(P) (where P is the length N of our hash table, in our case about 1,050,000 or ~2N). If we find such a list, then we can compare the URLs and deduplicate.
+We expect the hashing strategy to take O(3N). First, for every row we compute the hash and insert the data into a table, which is O(N). Then, we go through the table looking for rows with length > 1, which is O(P) (where P is the length of our hash table, in our case about 1,050,000 or ~2N). If we find such a list, then we can compare the URLs and deduplicate.
 
 Thus, we expect the sort and traverse to be slightly faster than the hash function. However, the hashing function was much slower than strategy 1. 
 
