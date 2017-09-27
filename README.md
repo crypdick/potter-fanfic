@@ -3,6 +3,7 @@
 ## Creating db, setting URL as primary key
 
     CREATE DATABASE fanfiction_duffrindecal;
+    
     \connect fanfiction_duffrindecal
     
     CREATE TABLE stories_orig (
@@ -27,7 +28,7 @@
 ### a. Reading in CSV data
 
 
-    \copy stories_orig FROM data/stories_orig.csv CSV HEADER;
+    \copy stories_orig FROM data/stories_orig.csv CSV HEADER
     
     ERROR:  duplicate key value violates unique constraint "stories_orig_pkey"
     DETAIL:  Key (url)=(http://www.fanfiction.net/s/9096319/1/Green-Eyed-Monster) already exists.
@@ -38,13 +39,13 @@ Primary keys have two constrains: the value must not be NULL and it must be uniq
 
     ALTER TABLE stories_orig DROP CONSTRAINT stories_orig_pkey;
 
-    \copy stories_orig FROM data/stories_orig.csv CSV HEADER;
+    \copy stories_orig FROM stories_orig.csv CSV HEADER
 
     ALTER TABLE stories_orig ADD COLUMN id SERIAL PRIMARY KEY;
 
 ### c. Removing duplicates
 
-We joined the table with itself, checking for records with the same URL. We compared the join statement with and without an index using the `EXPLAIN` commands.
+We joined the table with itself, checking for records with the same URL. We compared the join statement with and without indexing URLs using the `EXPLAIN` commands.
 
     EXPLAIN SELECT * FROM stories_orig AS a JOIN stories_orig AS b ON a.url = b.url WHERE a.id < b.id;
     
@@ -58,7 +59,7 @@ We joined the table with itself, checking for records with the same URL. We comp
              ->  Seq Scan on stories_orig b  (cost=0.00..46658.05 rows=613705 width=489)
     (6 rows)
     
-With an index:
+With a URL index:
 
     CREATE INDEX ON stories_orig (url); 
     
@@ -72,7 +73,8 @@ With an index:
        ->  Index Scan using stories_orig_url_idx on stories_orig b  (cost=0.55..104658.64 rows=613705 width=489)
     (5 rows)
 
-Adding the index greatly reduces the time to join the tables because it replaces the hashing step with an index scan.
+
+Adding the stories_orig_url_idx index greatly reduces the time to join the tables (from 46658 to 1.10) because it replaces the hashing step with an index scan.
 
 
 ## Fixing the data
@@ -81,13 +83,14 @@ Adding the index greatly reduces the time to join the tables because it replaces
 
 ### Strategy 2: Hashing
 
-#### Hash1: Map each row r to a number h(r) between 0 and N = 2^20-1. 
+1. Map each row r to a number h(r) between 0 and N = 2^20-1. 
 One suggestion (among many): represent published as mmddyy and words as nnn...n, and set h(r) to mmddyynnn...n mod N.
 
-#### Hash2: Create a python list of N empty lists.
+2. Create a python list of N empty lists.
 
-#### Hash3: Add each row r to the h(r)th list. 
+3. Add each row r to the h(r)th list. 
 
-#### Hash4: Traverse the list of lists. If any list contains more than one row, compare them. 
+4. Traverse the list of lists. If any list contains more than one row, compare them. 
 
 ### Comparison of munging strategies
+
