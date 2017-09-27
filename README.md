@@ -84,7 +84,6 @@ Adding the stories_orig_url_idx index greatly reduces the time to join the table
 ### Strategy 2: Hashing
 
 1. Map each row r to a number h(r) between 0 and N = 2^20-1. 
-One suggestion (among many): represent published as mmddyy and words as nnn...n, and set h(r) to mmddyynnn...n mod N.
 
 2. Create a python list of N empty lists.
 
@@ -94,3 +93,14 @@ One suggestion (among many): represent published as mmddyy and words as nnn...n,
 
 ### Comparison of munging strategies
 
+We expect the sort and traverse strategy to have O(N + N log N) complexity. First, the rows are sorted with quicksort, which is N log N on average. Then, we go through the list from top to bottom looking for duplicate rows, which is N operations.
+
+We expect the hashing strategy to take O(3N). First, for every row we compute the hash and insert the data into a table, which is O(N). Then, we go through the table looking for rows with length > 1, which is O(P) (where P is the length N of our hash table, in our case about 1,050,000 or ~2N). If we find such a list, then we can compare the URLs and deduplicate.
+
+Thus, we expect the sort and traverse to be slightly faster than the hash function. However, the hashing function was much slower than strategy 1. 
+
+The sort and traverse strategy took 15.05 seconds to deduplicate the table. In contrast, deduplicating the hash table took 460 seconds!
+
+There most likely culprit is the overhead from using Pandas to hold our csv data. Iterating through the dataframe is costly, since it has to generate a pd.Series object at each iteration. Then, we extract the url and date from each Series object by the column label in `date, url = row[['PUBLISHED', 'URL']]`. Later, when finding duplicate URLs, we are also searching through the pd.Series using keyword searches.
+
+In addition, we may just be getting unlucky with the entries clustering in our hash table due to hash collisions. This would cause us to have to make more comparisons.
